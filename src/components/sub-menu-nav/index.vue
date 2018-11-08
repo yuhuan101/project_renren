@@ -1,26 +1,55 @@
 <template>
-  <el-submenu
-    v-if="menuNav.list && menuNav.list.length >= 1"
-    :data-idx="menuNav.menuId + ''"
-    :index="menuNav.menuId + ''">
-    <template slot="title">
-      <i :class="['site-sidebar__menu-icon', menuNav.icon ? menuNav.icon : 'fa fa-circle-o']"></i>
-      <span>{{ menuNav.name }}</span>
-    </template>
-    <sub-menu-nav
-      v-for="item in menuNav.list" 
+  <div class="menu-box">
+    <el-submenu
+      v-if="menuNav.length"
+      v-for="(item,index) in menuNav"
       :key="item.menuId"
-      :menu-nav="item">
-    </sub-menu-nav>
-  </el-submenu>
-  <el-menu-item
-    v-else
-    :index="menuNav.menuId + ''"
-    :data-idx="menuNav.menuId + ''"
-    @click="gotoRouteHandle(menuNav.url)">
-    <i :class="['site-sidebar__menu-icon', menuNav.icon ? menuNav.icon : 'fa fa-circle-o']"></i>
-    <span>{{ menuNav.name }}</span>
-  </el-menu-item>
+      :index="item.menuId + ''">
+      
+      <template slot="title">
+        <i :class="['site-sidebar__menu-icon', item.icon ? item.icon : 'fa fa-circle-o']"></i>
+        <span>{{ item.name }}</span>
+      </template>
+
+      <!-- type 0目录1菜单 -->
+      <el-submenu 
+        v-if="listItem.type == 0"
+        v-for="listItem in item.list" 
+        :index="listItem.menuId + ''"
+        :key="listItem.menuId"
+        >
+
+        <template slot="title">
+          <i :class="['site-sidebar__menu-icon', listItem.icon ? listItem.icon : 'fa fa-circle-o']"></i>
+          <span>{{ listItem.name }}</span>
+        </template>
+        <el-menu-item
+          v-if="listItem.list.length"
+          v-for="el in listItem.list"
+          :index="el.menuId + ''"
+          :key="el.menuId"
+          @click="gotoRouteHandle(el.url)">
+          <template slot="title">
+            <i :class="['site-sidebar__menu-icon', el.icon ? el.icon : 'fa fa-circle-o']"></i>
+            <span>{{ el.name }}</span>
+          </template>
+        </el-menu-item>
+      </el-submenu>
+
+      <el-menu-item 
+        v-if="list.type == 1"
+        v-for="list in item.list" 
+        :index="list.menuId + ''"
+        :key="list.menuId"
+        @click="gotoRouteHandle(list.url)">
+        <template slot="title">
+          <i :class="['site-sidebar__menu-icon', list.icon ? list.icon : 'fa fa-circle-o']"></i>
+          <span>{{ list.name }}</span>
+        </template>
+      </el-menu-item>
+
+    </el-submenu>
+  </div>
 </template>
 
 <script>
@@ -29,11 +58,16 @@
   export default {
     name: 'sub-menu-nav',
     props: {
-      menuNav: Object,
-      required: true
+      menuNav: {},
     },
     components: {
       SubMenuNav
+    },
+    data () {
+      return {
+      }
+    },
+    watch: {
     },
     methods: {
       // 跳转到菜单导航对应路由
@@ -43,6 +77,8 @@
           this.$router.push({ name: routeName })
         }
       }
+    },
+    mounted() {
     }
   }
 </script>

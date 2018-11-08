@@ -13,11 +13,12 @@
           <i class="site-sidebar__menu-icon fa fa-home"></i>
           <span slot="title">首页</span>
         </el-menu-item>
-        <sub-menu-nav
+        <!-- <sub-menu-nav
           v-for="menuNav in $store.state.menuNavList" 
           :key="menuNav.menuId"
           :menu-nav="menuNav">
-        </sub-menu-nav>
+        </sub-menu-nav> -->
+        <sub-menu-nav :menuNav="$store.state.menuNavList"></sub-menu-nav>
       </el-menu>
     </div>
   </aside>
