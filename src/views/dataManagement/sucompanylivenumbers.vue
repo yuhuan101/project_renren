@@ -1,12 +1,23 @@
 <template>
   <div class="room-data">
-    <el-form :inline="true" :model="dataForm" @keyup.enter.native="getCompanylivenumbers('search')">
+    <el-form :inline="true" :model="dataForm" @keyup.enter.native="getSumLivenumbers">
       <el-form-item>
-        <el-select v-model="sumcompanyId" placeholder="请选择房间号">
+        <el-select v-model="companyId" placeholder="请选择房间号" @change="getSumLivenumbers">
           <el-option
-            v-for="item in roomList"
+            v-for="item in companyList"
             :key="item.userId"
             :value="item.userId"
+            :label="item.name"
+            >
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="roomList.length">
+        <el-select v-model="roomId" placeholder="请选择直播间">
+          <el-option
+            v-for="item in roomList"
+            :key="item.roomId"
+            :value="item.roomId"
             :label="item.name"
             >
           </el-option>
@@ -24,7 +35,8 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button @click.native="getCompanylivenumbers('search')">查询</el-button>
+        <el-button v-if="!roomId" @click.native="getSumLivenumbers">查询</el-button>
+        <el-button v-if="companyId && roomId" @click.native="getLivenumbers">查询</el-button>
       </el-form-item>
     </el-form>
 
@@ -45,7 +57,7 @@
         },
         queryForm: {
           startTime: '',
-          endTime: ''
+          endTime: '',
         },
         pickerOptions2: {
           disabledDate (time) {
@@ -54,7 +66,9 @@
         },
         selectTime: new Date(),
         roomList: [],
-        sumcompanyId: '',
+        companyList: [],
+        companyId: '',
+        roomId: '',
       }
     },
     components: {
@@ -109,10 +123,62 @@
       }
     },
     methods: {
-      getCompanylivenumbers(type) {
-        if(type && type === 'search'){
-          this.queryForm['sumcompanyId'] = this.sumcompanyId
+      getLivenumbers() {
+        this.getTimeParams();
+        this.queryForm['sumcompanyId'] = this.companyId;
+        if(this.roomId != -1){
+          this.queryForm['uin'] = this.roomId;
         }
+        
+        let lineCharts = this.$refs.lineCharts
+        API.dmslivenumbers.livenumbers(this.queryForm).then(({data}) => {
+          if (data && data.code === 0) {
+            if (lineCharts != null) {
+              lineCharts.removeSeries()
+            }
+            let resultObj = data.page
+            let xdata = resultObj.createTime;
+            lineCharts.getChart().xAxis[0].categories = xdata;
+            for (let key in resultObj) {
+                if (key !== 'createTime') {
+                  lineCharts.addSeries({ name: key == 'total'?'全部':key, data: resultObj[key] })
+                }
+            }
+          }else{
+            this.$message.error(data.msg)
+          }
+        })
+      },
+      getSumLivenumbers(value) {
+        //选择全部子公司
+        if(value == -1){
+          this.getCompanylivenumbers()
+          return;
+        }
+        this.queryForm['companyId'] = this.companyId
+        this.getTimeParams();
+        let lineCharts = this.$refs.lineCharts
+        API.dmslivenumbers.sumlivenumbers(this.queryForm).then(({data}) => {
+          if (data && data.code === 0) {
+            if (lineCharts != null) {
+              lineCharts.removeSeries()
+            }
+            data.page.roomList.unshift({name: '全部' ,roomId: '-1'})
+            this.roomList = data.page.roomList;
+            let resultObj = data.page
+            let xdata = resultObj.createTime;
+            lineCharts.getChart().xAxis[0].categories = xdata;
+            for (let key in resultObj) {
+                if (key !== 'createTime' && key !== 'roomList') {
+                  lineCharts.addSeries({ name: key == 'total'?'全部':key, data: resultObj[key] })
+                }
+            }
+          }else{
+            this.$message.error(data.msg)
+          }
+        })
+      },
+      getCompanylivenumbers() {
         this.getTimeParams();
         let lineCharts = this.$refs.lineCharts
         API.dmslivenumbers.companylivenumbers(this.queryForm).then(({data}) => {
@@ -120,7 +186,8 @@
             if (lineCharts != null) {
               lineCharts.removeSeries()
             }
-            this.roomList = data.page.companyList;
+            data.page.companyList.unshift({name: '全部', userId: '-1'})
+            this.companyList = data.page.companyList;
             let resultObj = data.page
             let xdata = resultObj.createTime;
             lineCharts.getChart().xAxis[0].categories = xdata;

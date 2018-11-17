@@ -155,7 +155,7 @@
             lineCharts.getChart().xAxis[0].categories = xdata;
             for (let key in resultObj) {
                 if (key !== 'createTime' && key !== 'roomList') {
-                  lineCharts.addSeries({ name: key == 'total'?'全部':'域名', data: resultObj[key] })
+                  lineCharts.addSeries({ name: key == 'total'?'全部':key, data: resultObj[key] })
                 }
             }
           }else{
