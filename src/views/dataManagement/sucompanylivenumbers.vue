@@ -126,8 +126,10 @@
       getLivenumbers() {
         this.getTimeParams();
         this.queryForm['sumcompanyId'] = this.companyId;
-        if(this.roomId != -1){
-          this.queryForm['uin'] = this.roomId;
+        this.queryForm['uin'] = this.roomId;
+        if(this.roomId == -1){
+          this.getSumLivenumbers();
+          return;
         }
         
         let lineCharts = this.$refs.lineCharts
