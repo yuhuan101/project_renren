@@ -1,12 +1,20 @@
 <template>
   <div class="room-data">
-    <el-form :inline="true" :model="dataForm">
-      <!-- <el-form-item>
-        <el-input v-model="queryForm.uin" placeholder="房间号" clearable></el-input>
+    <el-form :inline="true" :model="dataForm" @keyup.enter.native="getLivenumbers">
+      <el-form-item>
+        <el-select v-model="queryForm.uin" placeholder="请选择房间号">
+          <el-option
+            v-for="item in roomList"
+            :key="item.roomId"
+            :value="item.roomId"
+            :label="item.name"
+            >
+          </el-option>
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-input v-model="queryForm.domain" placeholder="按照域名查询(开发中)" clearable></el-input>
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item label="时间选择:">
         <el-date-picker
           v-model="selectTime"
@@ -19,7 +27,7 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button @click.native="getAlllivenumbers">查询</el-button>
+        <el-button @click.native="getLivenumbers">查询</el-button>
       </el-form-item>
     </el-form>
 
@@ -39,6 +47,8 @@
           key: ''
         },
         queryForm: {
+          uin: '',
+          domain: '',
           startTime: '',
           endTime: ''
         },
@@ -48,13 +58,14 @@
           }
         },
         selectTime: new Date(),
+        roomList: [],
       }
     },
     components: {
       VueHighcharts
     },
     activated () {
-      this.getAlllivenumbers()
+      this.getSumLivenumbers()
     },
     computed: {
       options: function () {
@@ -102,21 +113,43 @@
       }
     },
     methods: {
-       getAlllivenumbers() {
+      getSumLivenumbers() {
         this.getTimeParams();
         let lineCharts = this.$refs.lineCharts
-        API.dmslivenumbers.alllivenumbers(this.queryForm).then(({data}) => {
+        API.dmslivenumbers.sumlivenumbers(this.queryForm).then(({data}) => {
           if (data && data.code === 0) {
             if (lineCharts != null) {
               lineCharts.removeSeries()
             }
-            this.roomList = data.page.companyList;
+
+            this.roomList = data.page.roomList;
             let resultObj = data.page
             let xdata = resultObj.createTime;
             lineCharts.getChart().xAxis[0].categories = xdata;
             for (let key in resultObj) {
-                if (key !== 'createTime' && key !== 'companyList' && key !== 'roomList') {
+                if (key !== 'createTime' && key !== 'roomList') {
                   lineCharts.addSeries({ name: key == 'total'?'全部':key, data: resultObj[key] })
+                }
+            }
+          }else{
+            this.$message.error(data.msg)
+          }
+        })
+      },
+      getLivenumbers() {
+        this.getTimeParams();
+        let lineCharts = this.$refs.lineCharts
+        API.dmslivenumbers.livenumbers(this.queryForm).then(({data}) => {
+          if (data && data.code === 0) {
+            if (lineCharts != null) {
+              lineCharts.removeSeries()
+            }
+            let resultObj = data.page
+            let xdata = resultObj.createTime;
+            lineCharts.getChart().xAxis[0].categories = xdata;
+            for (let key in resultObj) {
+                if (key !== 'createTime' && key !== 'roomList') {
+                  lineCharts.addSeries({ name: key == 'total'?'全部':'域名', data: resultObj[key] })
                 }
             }
           }else{

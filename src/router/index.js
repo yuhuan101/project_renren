@@ -24,8 +24,10 @@ export default new Router({
             children: [
                 // 通过isTab属性, 设定是否通过tab标签页展示内容
                 { path: '/home', component: _import('home/index'), name: 'home', desc: '首页' },
-                { path: '/n/livenumbers', component: _import('dataManagement/livenumbers'), name: 'livenumbers', desc: '直播间数据统计', meta: { isTab: true } },
+                { path: '/n/livenumbers', component: _import('dataManagement/livenumbers'), name: 'livenumbers', desc: '直播间数据', meta: { isTab: true } },
                 { path: '/n/sumlivenumbers', component: _import('dataManagement/sumlivenumbers'), name: 'sumlivenumbers', desc: '总数据', meta: { isTab: true } },
+                { path: '/n/sumcompanylivenumbers', component: _import('dataManagement/sumcompanylivenumbers'), name: 'sumcompanylivenumbers', desc: '总公司数据', meta: { isTab: true } },
+                { path: '/n/sucompanylivenumbers', component: _import('dataManagement/sucompanylivenumbers'), name: 'sucompanylivenumbers', desc: '子公司数据', meta: { isTab: true } },
                 { path: '/user', component: _import('user/index'), name: 'user', desc: '管理员管理', meta: { isTab: true } },
                 { path: '/role', component: _import('role/index'), name: 'role', desc: '角色管理', meta: { isTab: true } },
                 { path: '/menu', component: _import('menu/index'), name: 'menu', desc: '菜单管理', meta: { isTab: true } },

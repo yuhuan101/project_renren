@@ -1,12 +1,17 @@
 <template>
   <div class="room-data">
-    <el-form :inline="true" :model="dataForm">
-      <!-- <el-form-item>
-        <el-input v-model="queryForm.uin" placeholder="房间号" clearable></el-input>
-      </el-form-item>
+    <el-form :inline="true" :model="dataForm" @keyup.enter.native="getCompanylivenumbers('search')">
       <el-form-item>
-        <el-input v-model="queryForm.domain" placeholder="按照域名查询(开发中)" clearable></el-input>
-      </el-form-item> -->
+        <el-select v-model="sumcompanyId" placeholder="请选择房间号">
+          <el-option
+            v-for="item in roomList"
+            :key="item.userId"
+            :value="item.userId"
+            :label="item.name"
+            >
+          </el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="时间选择:">
         <el-date-picker
           v-model="selectTime"
@@ -19,7 +24,7 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button @click.native="getAlllivenumbers">查询</el-button>
+        <el-button @click.native="getCompanylivenumbers('search')">查询</el-button>
       </el-form-item>
     </el-form>
 
@@ -48,13 +53,15 @@
           }
         },
         selectTime: new Date(),
+        roomList: [],
+        sumcompanyId: '',
       }
     },
     components: {
       VueHighcharts
     },
     activated () {
-      this.getAlllivenumbers()
+      this.getCompanylivenumbers()
     },
     computed: {
       options: function () {
@@ -102,10 +109,13 @@
       }
     },
     methods: {
-       getAlllivenumbers() {
+      getCompanylivenumbers(type) {
+        if(type && type === 'search'){
+          this.queryForm['sumcompanyId'] = this.sumcompanyId
+        }
         this.getTimeParams();
         let lineCharts = this.$refs.lineCharts
-        API.dmslivenumbers.alllivenumbers(this.queryForm).then(({data}) => {
+        API.dmslivenumbers.companylivenumbers(this.queryForm).then(({data}) => {
           if (data && data.code === 0) {
             if (lineCharts != null) {
               lineCharts.removeSeries()
@@ -115,7 +125,7 @@
             let xdata = resultObj.createTime;
             lineCharts.getChart().xAxis[0].categories = xdata;
             for (let key in resultObj) {
-                if (key !== 'createTime' && key !== 'companyList' && key !== 'roomList') {
+                if (key !== 'createTime' && key !== 'companyList') {
                   lineCharts.addSeries({ name: key == 'total'?'全部':key, data: resultObj[key] })
                 }
             }

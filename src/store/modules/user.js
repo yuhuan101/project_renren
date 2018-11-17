@@ -6,6 +6,9 @@ const state = {
 }
 
 const getters = {
+  userId(state){
+      return state.id || 0;
+  },
 }
 
 const actions = {

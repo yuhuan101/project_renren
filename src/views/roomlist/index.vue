@@ -56,13 +56,14 @@
         prop="mcsId"
         header-align="center"
         align="center"
+        width="110"
         label="对应的mcs">
       </el-table-column>
       <el-table-column
         prop="playerType"
         header-align="center"
         align="center"
-        width="100"
+        width="110"
         label="播放器类型">
         <template slot-scope="scope">
           <label v-if="scope.row.playerType === 0">txPlayer</label>
@@ -74,6 +75,48 @@
         header-align="center"
         align="center"
         label="创建者ID">
+      </el-table-column>
+      <el-table-column
+        v-if="userId == 1"
+        prop="urlAuth"
+        header-align="center"
+        align="center"
+        label="是否鉴权">
+        <template slot-scope="scope">
+          <label v-if="scope.row.urlAuth === 0">否</label>
+          <label v-else>是</label>
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-if="userId == 1"
+        prop="increment"
+        header-align="center"
+        align="center"
+        label="增幅">
+      </el-table-column>
+      <el-table-column
+        v-if="userId == 1"
+        prop="rtmpType"
+        header-align="center"
+        align="center"
+        width="110"
+        label="流媒体类型">
+        <template slot-scope="scope">
+          <label v-if="scope.row.rtmpType === 0">阿里</label>
+          <label v-else>网速</label>
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-if="userId == 1"
+        prop="videoType"
+        header-align="center"
+        align="center"
+        width="110"
+        label="播放器填充">
+        <template slot-scope="scope">
+          <label v-if="scope.row.rtmpType === 1">等比缩放</label>
+          <label v-else>铺满</label>
+        </template>
       </el-table-column>
       <el-table-column
         prop="createTime"
@@ -138,6 +181,7 @@
 
 <script>
   import API from '@/api'
+  import { mapGetters } from 'vuex'
   import AddOrUpdate from './add-or-update'
   import Upload from './upload'
   export default {
@@ -195,6 +239,7 @@
       this.getDataList()
     },
     computed: {
+      ...mapGetters(['userId']),
       playercode: function () {
         return '<script type="text/javascript" src="http://cdn.financeplayer.astevencui.com/renren-fast/app/yjplayer?r=' + this.uin + '"><' + '/' + 'script>'
       },

@@ -56,3 +56,31 @@ export function livenumbers (params) {
     params: requestParam(params, 'get')
   })
 }
+
+// 拉取用户在线总信息
+export function sumlivenumbers (params) {
+  return request({
+    url: requestUrl('/generator/dmslivenumbers/sumlivenumbers'),
+    method: 'get',
+    params: requestParam(params, 'get')
+  })
+}
+
+// 拉取子公司数据
+export function companylivenumbers (params) {
+  return request({
+    url: requestUrl('/generator/dmslivenumbers/companylivenumbers'),
+    method: 'get',
+    params: requestParam(params, 'get')
+  })
+}
+
+
+// 拉取总公司数据
+export function alllivenumbers (params) {
+  return request({
+    url: requestUrl('/generator/dmslivenumbers/alllivenumbers'),
+    method: 'get',
+    params: requestParam(params, 'get')
+  })
+}

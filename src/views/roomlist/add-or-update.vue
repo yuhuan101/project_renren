@@ -16,8 +16,26 @@
       <el-form-item v-if="dataForm.roomId" label="主播密码" prop="password">
         <el-input v-model="dataForm.password" placeholder="主播密码"></el-input>
       </el-form-item>
-      <el-form-item v-if="showIncrement" label="增幅" prop="increment">
+      <el-form-item label="增幅" prop="increment" v-if="dataForm.roomId && userId == 1">
         <el-input v-model="dataForm.increment" placeholder="增幅"></el-input>
+      </el-form-item>
+      <el-form-item label="是否鉴权" size="mini" prop="urlAuth" v-if="dataForm.roomId && userId == 1">
+        <el-radio-group v-model="dataForm.urlAuth">
+          <el-radio :label="0">关闭</el-radio>
+          <el-radio :label="1">开启</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="流媒体类型" size="mini" prop="rtmpType" v-if="dataForm.roomId && userId == 1">
+        <el-radio-group v-model="dataForm.rtmpType">
+          <el-radio :label="0">阿里</el-radio>
+          <el-radio :label="1">网速</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="播放器填充" size="mini" prop="videoType" v-if="dataForm.roomId && userId == 1">
+        <el-radio-group v-model="dataForm.videoType">
+          <el-radio :label="1">等比缩放</el-radio>
+          <el-radio :label="2">铺满</el-radio>
+        </el-radio-group>
       </el-form-item>
       <el-form-item label="状态" size="mini" prop="playerType">
         <el-radio-group v-model="dataForm.playerType">
@@ -35,6 +53,7 @@
 
 <script>
   import API from '@/api'
+  import { mapGetters } from 'vuex'
   export default {
     data () {
       return {
@@ -50,7 +69,11 @@
           mcsId: '',
           playerType: 1,
           createUserId: '',
-          createTime: ''
+          createTime: '',
+          increment: 0,
+          urlAuth: 0,
+          rtmpType: 0,
+          videoType: 1,
         },
         dataRule: {
           name: [
@@ -77,6 +100,9 @@
         }
       }
     },
+    computed: {
+      ...mapGetters(['userId'])
+    },
     methods: {
       init (id) {
         this.dataForm.roomId = id || 0
@@ -95,6 +121,10 @@
                 this.dataForm.playerType = data.roomList.playerType
                 this.dataForm.createUserId = data.roomList.createUserId
                 this.dataForm.createTime = data.roomList.createTime
+                this.dataForm.urlAuth = data.roomList.urlAuth
+                this.dataForm.increment = data.roomList.increment
+                this.dataForm.rtmpType = data.roomList.rtmpType
+                this.dataForm.videoType = data.roomList.videoType
               }
             })
           }
@@ -114,7 +144,11 @@
               'mcsId': this.dataForm.mcsId,
               'playerType': this.dataForm.playerType,
               'createUserId': this.dataForm.createUserId,
-              'createTime': this.dataForm.createTime
+              'createTime': this.dataForm.createTime,
+              'urlAuth': this.dataForm.urlAuth,
+              'increment': this.dataForm.increment,
+              'rtmpType': this.dataForm.rtmpType,
+              'videoType': this.dataForm.videoType
             }
             console.log(this.dataForm)
             var tick = !this.dataForm.roomId ? API.roomlist.add(params) : API.roomlist.update(params)

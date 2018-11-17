@@ -3,13 +3,13 @@
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getLivenumbers">
       <el-form-item>
         <el-select v-model="queryForm.uin" placeholder="请选择房间号">
-          <!-- <el-option
-            v-for="item in options2"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-            :disabled="item.disabled">
-          </el-option> -->
+          <el-option
+            v-for="item in roomList"
+            :key="item.roomId"
+            :value="item.roomId"
+            :label="item.name"
+            >
+          </el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -32,6 +32,7 @@
     </el-form>
 
     <div class="charts">
+      <div class="no-data" v-show="charts.length === 0">暂无数据</div>
       <vue-highcharts :options="options" ref="lineCharts" ></vue-highcharts>
     </div>
   </div>
@@ -58,13 +59,15 @@
           }
         },
         selectTime: new Date(),
+        roomList: [],
+        charts: [],
       }
     },
     components: {
       VueHighcharts
     },
     activated () {
-      
+      this.getSumLivenumbers()
     },
     computed: {
       options: function () {
@@ -81,13 +84,13 @@
           chart: {
             height: 300,
             zoomType: 'x',
-            type: 'line'
+            type: 'area'
           },
           legend: {
-            itemStyle: {
-              "fontSize": "18px",
+            /*itemStyle: {
+              "fontSize": "15px",
               "fontWeight": "500"
-            },
+            },*/
           },
           plotOptions: {
             area: {
@@ -115,6 +118,30 @@
       getDataList() {
 
       },
+      getSumLivenumbers() {
+        this.getTimeParams();
+        let lineCharts = this.$refs.lineCharts
+        API.dmslivenumbers.sumlivenumbers(this.queryForm).then(({data}) => {
+          if (data && data.code === 0) {
+            if (lineCharts != null) {
+              lineCharts.removeSeries()
+            }
+
+            this.roomList = data.page.roomList;
+            this.charts = data.page.total;
+            let resultObj = data.page
+            let xdata = resultObj.createTime;
+            lineCharts.getChart().xAxis[0].categories = xdata;
+            for (let key in resultObj) {
+                if (key !== 'createTime' && key !== 'roomList') {
+                  lineCharts.addSeries({ name: key == 'total'?'全部':key, data: resultObj[key] })
+                }
+            }
+          }else{
+            this.$message.error(data.msg)
+          }
+        })
+      },
       getLivenumbers() {
         this.getTimeParams();
         let lineCharts = this.$refs.lineCharts
@@ -123,12 +150,11 @@
             if (lineCharts != null) {
               lineCharts.removeSeries()
             }
-
             let resultObj = data.page
             let xdata = resultObj.createTime;
             lineCharts.getChart().xAxis[0].categories = xdata;
             for (let key in resultObj) {
-                if (key !== 'createTime') {
+                if (key !== 'createTime' && key !== 'roomList') {
                   lineCharts.addSeries({ name: key == 'total'?'全部':'域名', data: resultObj[key] })
                 }
             }
@@ -153,3 +179,17 @@
     }
   }
 </script>
+
+<style lang="scss" scoped>
+  .charts{
+    position: relative;
+  }
+    
+  .no-data{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 200;
+  } 
+
+</style>
