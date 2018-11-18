@@ -125,13 +125,12 @@
     methods: {
       getLivenumbers() {
         this.getTimeParams();
+        if(this.roomId == ''){
+          this.getSumLivenumbers();
+          return
+        }
         this.queryForm['sumcompanyId'] = this.companyId;
         this.queryForm['uin'] = this.roomId;
-        if(this.roomId == -1){
-          this.getSumLivenumbers();
-          return;
-        }
-        
         let lineCharts = this.$refs.lineCharts
         API.dmslivenumbers.livenumbers(this.queryForm).then(({data}) => {
           if (data && data.code === 0) {
@@ -151,12 +150,16 @@
           }
         })
       },
-      getSumLivenumbers(value) {
+      getSumLivenumbers() {
         //选择全部子公司
-        if(value == -1){
+        if(this.companyId == ''){
           this.getCompanylivenumbers()
           return;
         }
+        this.roomId = ''
+        this.roomList = []
+        delete this.queryForm.uin;
+        delete this.queryForm.sumcompanyId;
         this.queryForm['companyId'] = this.companyId
         this.getTimeParams();
         let lineCharts = this.$refs.lineCharts
@@ -165,7 +168,7 @@
             if (lineCharts != null) {
               lineCharts.removeSeries()
             }
-            data.page.roomList.unshift({name: '全部' ,roomId: '-1'})
+            data.page.roomList.unshift({name: '全部' ,roomId: ''})
             this.roomList = data.page.roomList;
             let resultObj = data.page
             let xdata = resultObj.createTime;
@@ -183,12 +186,15 @@
       getCompanylivenumbers() {
         this.getTimeParams();
         let lineCharts = this.$refs.lineCharts
+        delete this.queryForm.uin;
+        delete this.queryForm.companyId;
+        delete this.queryForm.sumcompanyId;
         API.dmslivenumbers.companylivenumbers(this.queryForm).then(({data}) => {
           if (data && data.code === 0) {
             if (lineCharts != null) {
               lineCharts.removeSeries()
             }
-            data.page.companyList.unshift({name: '全部', userId: '-1'})
+            data.page.companyList.unshift({name: '全部', userId: ''})
             this.companyList = data.page.companyList;
             let resultObj = data.page
             let xdata = resultObj.createTime;
