@@ -94,7 +94,7 @@
         label="操作">
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.agentId)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.agentId)">删除</el-button>
+          <el-button v-if="userId == 1" type="text" size="small" @click="deleteHandle(scope.row.agentId)">删除</el-button>
           <el-button type="text" size="small" @click="agentRoomHandle(scope.row.agentId)">直播间</el-button>
         </template>
       </el-table-column>
@@ -117,6 +117,7 @@
   import API from '@/api'
   import AddOrUpdate from './add-or-update'
   import room from './room'
+  import { mapGetters } from 'vuex'
   export default {
     data () {
       return {
@@ -131,6 +132,9 @@
         dataListSelections: [],
         addOrUpdateVisible: false
       }
+    },
+    computed: {
+      ...mapGetters(['userId']),
     },
     components: {
       AddOrUpdate,

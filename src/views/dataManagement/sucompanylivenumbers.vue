@@ -189,6 +189,8 @@
         delete this.queryForm.uin;
         delete this.queryForm.companyId;
         delete this.queryForm.sumcompanyId;
+        this.roomId = ''
+        this.roomList = []
         API.dmslivenumbers.companylivenumbers(this.queryForm).then(({data}) => {
           if (data && data.code === 0) {
             if (lineCharts != null) {

@@ -144,7 +144,7 @@
           <el-button type="text" size="small" @click="showCode(scope.row.roomId)">复制代码</el-button>
           <el-button type="text" size="small" @click="showPlayer(scope.row.roomId)">预览</el-button>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.roomId)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.roomId)">删除</el-button>
+          <el-button v-if="userId == 1" type="text" size="small" @click="deleteHandle(scope.row.roomId)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

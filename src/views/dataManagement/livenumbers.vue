@@ -127,6 +127,7 @@
               lineCharts.removeSeries()
             }
 
+            data.page.roomList.unshift({name: '全部' ,roomId: ''})
             this.roomList = data.page.roomList;
             this.charts = data.page.total;
             let resultObj = data.page
@@ -145,6 +146,10 @@
       getLivenumbers() {
         this.getTimeParams();
         let lineCharts = this.$refs.lineCharts
+        if(this.queryForm.uin == ''){
+          this.getSumLivenumbers()
+          return
+        }
         API.dmslivenumbers.livenumbers(this.queryForm).then(({data}) => {
           if (data && data.code === 0) {
             if (lineCharts != null) {
@@ -153,10 +158,22 @@
             let resultObj = data.page
             let xdata = resultObj.createTime;
             lineCharts.getChart().xAxis[0].categories = xdata;
+            let chartData = [];
+
             for (let key in resultObj) {
-                if (key !== 'createTime' && key !== 'roomList') {
-                  lineCharts.addSeries({ name: key == 'total'?'全部':key, data: resultObj[key] })
+                if (key !== 'createTime') {
+                  if(key == 'total'){
+                    chartData.unshift({key: '全部', data: resultObj[key]})
+                  }else{
+                    chartData.push({key: key, data: resultObj[key]})
+                  }
+                  // lineCharts.addSeries({ name: key == 'total'?'全部':key, data: resultObj[key] })
                 }
+            }
+            if(chartData.length > 0){
+              chartData.forEach((item) => {
+                lineCharts.addSeries({ name: item.key, data: item.data })
+              })
             }
           }else{
             this.$message.error(data.msg)
