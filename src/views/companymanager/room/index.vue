@@ -66,6 +66,7 @@
         label="播放器类型">
         <template slot-scope="scope">
           <label v-if="scope.row.playerType === 0">txPlayer</label>
+          <label v-else-if="scope.row.playerType === 3">mpsPlayer</label>
           <label v-else>ADPlayer</label>
         </template>
       </el-table-column>
@@ -87,7 +88,7 @@
         sortable
         align="center">
         <template slot-scope="scope">
-          <img  :src="scope.row.coverpic" alt="" style="width: 50px;height: 50px">
+          <img :src="scope.row.coverpic" alt="" style="width: 50px;height: 50px">
           <el-button type="text" size="small" @click="showUpload(scope.row.roomId)">上传封面图</el-button>
         </template>
       </el-table-column>
